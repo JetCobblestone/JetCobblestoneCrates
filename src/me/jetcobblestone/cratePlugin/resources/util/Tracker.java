@@ -32,6 +32,7 @@ public class Tracker {
 	     return instance;
 	}
 	
+	//This will read the player's history and open the previous inventory they were looking in, whilst popping the inventory they are currently looking in off their history
 	public void goBack(Player player) {
 		list = inventoryTree.get(player.getUniqueId());
 		player.openInventory(list.get(list.size()-2));
