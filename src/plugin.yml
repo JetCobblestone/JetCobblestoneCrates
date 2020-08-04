@@ -1,0 +1,9 @@
+main: me.jetcobblestone.cratePlugin.CratePlugin
+name: "JetCobblestone_Crates"
+version: '1.0'
+author: JetCobblestone
+api-version: 1.15
+
+
+commands:
+  CrateGUI:
