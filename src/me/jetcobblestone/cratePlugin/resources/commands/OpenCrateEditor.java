@@ -9,7 +9,7 @@ import me.jetcobblestone.cratePlugin.resources.guis.CrateCreatorGUI;
 import me.jetcobblestone.cratePlugin.resources.util.Tracker;
 
 //This is a command to open the crate editor
-public class CreateCrate implements CommandExecutor{
+public class OpenCrateEditor implements CommandExecutor{
 	
 	Tracker tracker = Tracker.getInstance();
 	
@@ -19,6 +19,7 @@ public class CreateCrate implements CommandExecutor{
 		Player player = (Player) sender;
 		
 		tracker.clear(player);
+		
 		if(CrateCreatorGUI.getInstance().getInventoryList().isEmpty() == false) {
 			player.openInventory(CrateCreatorGUI.getInstance().getInventoryList().get(0));
 		}

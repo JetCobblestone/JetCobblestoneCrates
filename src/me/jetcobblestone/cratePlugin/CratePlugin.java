@@ -20,7 +20,7 @@ public class CratePlugin extends JavaPlugin {
 	public void onEnable() {
 		instance = this;
 		saver = Saver.getInstance();
-		getCommand("CrateGUI").setExecutor(new me.jetcobblestone.cratePlugin.resources.commands.CreateCrate());
+		getCommand("CrateGUI").setExecutor(new me.jetcobblestone.cratePlugin.resources.commands.OpenCrateEditor());
 		
 		getServer().getPluginManager().registerEvents(new CrateOpen(), this);
 		getServer().getPluginManager().registerEvents(new CreationGUI(), this);
