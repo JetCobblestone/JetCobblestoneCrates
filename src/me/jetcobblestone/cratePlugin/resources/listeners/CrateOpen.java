@@ -25,7 +25,7 @@ import me.jetcobblestone.cratePlugin.resources.items.Crate;
 	public void onCrateClick(PlayerInteractEvent event) {
 		
 		Player commander = event.getPlayer();
-		
+		if (commander.getInventory().getItemInMainHand().hasItemMeta() == false) {return;}
 		if (commander.getInventory().getItemInMainHand().getItemMeta().getPersistentDataContainer().isEmpty()) return;
 		if (commander.getInventory().getItemInMainHand().getItemMeta().getPersistentDataContainer().has(Crate.getKey(), PersistentDataType.DOUBLE)) {
 			if (event.getAction() == Action.RIGHT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_AIR) {

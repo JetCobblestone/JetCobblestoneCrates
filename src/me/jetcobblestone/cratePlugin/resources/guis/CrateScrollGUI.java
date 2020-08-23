@@ -13,17 +13,10 @@ import me.jetcobblestone.cratePlugin.resources.util.ItemFactory;
 public class CrateScrollGUI{
 	
 	private static CrateScrollGUI instance;
-	
-	private Inventory inventory;
-	private ItemStack glass1;
-	private ItemStack glass2;
-	private ItemStack hopper;
-	
-	private CrateScrollGUI() {
-		glass1 = ItemFactory.createItem(" ", null, Material.ORANGE_STAINED_GLASS_PANE, null);
-		glass2 = ItemFactory.createItem(" ", null, Material.YELLOW_STAINED_GLASS_PANE, null);
-		hopper = ItemFactory.createItem("Reward", ChatColor.GOLD, Material.HOPPER, null);
-	}
+	private final ItemStack glass1 = ItemFactory.createItem(" ", null, Material.ORANGE_STAINED_GLASS_PANE, null);
+	private final ItemStack glass2 = ItemFactory.createItem(" ", null, Material.YELLOW_STAINED_GLASS_PANE, null);
+	private final ItemStack hopper = ItemFactory.createItem("Reward", ChatColor.GOLD, Material.HOPPER, null);
+	private final Inventory inventory = Bukkit.createInventory(null, 27, ChatColor.GOLD + "");
 	
 	public static CrateScrollGUI getInstance() {
 		if (instance == null) {
@@ -32,11 +25,7 @@ public class CrateScrollGUI{
 		return instance;
 	}
 	
-	//This creates the GUI used in the scrolling animation for the crate
-	public CrateScrollGUI(String name) {
-
-		inventory = Bukkit.createInventory(null, 27, ChatColor.GOLD + name);
-
+	public CrateScrollGUI() {
 		for (int i = 0; i <= 26; i += 2) {
 			if (i < 9 || i > 17) {
 				inventory.setItem(i, glass1);
@@ -50,9 +39,12 @@ public class CrateScrollGUI{
 		inventory.setItem(22, hopper);
 	}
 	
-	public Inventory getInventory() {
-		return inventory;
+	//This creates the GUI used in the scrolling animation for the crate
+	public Inventory getNewGUI(String name) {
+		final Inventory clone = Bukkit.createInventory(null, 27, ChatColor.GOLD + name);
+		clone.setContents(inventory.getContents());
+		return clone;
 	}
-		
+
 
 }

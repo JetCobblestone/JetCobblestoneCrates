@@ -6,9 +6,12 @@ import java.util.UUID;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+
+import me.jetcobblestone.cratePlugin.resources.guis.GUI;
 
 //This class creates a history of the GUIs a Player visits in order, so a back arrow can easily send the player backwards.
 
@@ -16,15 +19,11 @@ public class Tracker {
 	
 	private static Tracker instance;
 	
-	private final HashMap<UUID, ArrayList<Inventory>> inventoryTree = new HashMap<UUID, ArrayList<Inventory>>();
-	private ArrayList<Inventory> list;
-	private ItemStack forwardArrow;
-	private ItemStack backArrow;
+	private final HashMap<UUID, ArrayList<GUI>> inventoryTree = new HashMap<UUID, ArrayList<GUI>>();
+	private final ItemStack forwardArrow = ItemFactory.createItem("Foward", null, Material.ARROW, null);
 	
-	private Tracker() {
-		backArrow = ItemFactory.createItem("Back", ChatColor.RESET, Material.ARROW, null);
-		forwardArrow = ItemFactory.createItem("Foward", null, Material.ARROW, null);
-	}
+	private final ItemStack backArrow = ItemFactory.createItem("Back", ChatColor.RESET, Material.ARROW, null);
+	private final CustomSlot backArrowSlot = new CustomSlot(backArrow, event -> { goBack((Player) event.getWhoClicked()); event.setCancelled(true);	});
 	
 	public static Tracker getInstance() {
 	     if(instance == null)
@@ -34,31 +33,42 @@ public class Tracker {
 	
 	//This will read the player's history and open the previous inventory they were looking in, whilst popping the inventory they are currently looking in off their history
 	public void goBack(Player player) {
-		list = inventoryTree.get(player.getUniqueId());
-		player.openInventory(list.get(list.size()-2));
+		ArrayList<GUI> list = inventoryTree.get(player.getUniqueId());
+		list.get(list.size()-2).unTrackedOpen(player);
 		list.remove(list.size()-1);
 	}
 	
-	
-	public void add(Player player, Inventory inventory){
-		if(inventoryTree.get(player.getUniqueId()) == null) {
-			inventoryTree.put(player.getUniqueId(), new ArrayList<Inventory>());
+	public void add(Player player, GUI gui){
+		UUID uuid = player.getUniqueId();
+		if(inventoryTree.get(uuid) == null) {
+			inventoryTree.put(uuid, new ArrayList<GUI>());
 		}
-		inventoryTree.get(player.getUniqueId()).add(inventory);
+		inventoryTree.get(uuid).add(gui);
 	}
 	
-	public HashMap<UUID, ArrayList<Inventory>> getInventoryTree(){
+	public HashMap<UUID, ArrayList<GUI>> getInventoryTree(){
 		return inventoryTree;
 	}
 	
 	public void clear(Player player) {
-		inventoryTree.put(player.getUniqueId(), new ArrayList<Inventory>());
+		inventoryTree.put(player.getUniqueId(), new ArrayList<GUI>());
 	}
 	
-	public ItemStack getBackArrow() {
-		return backArrow;
+	public CustomSlot getBackArrow() {
+		return backArrowSlot;
 	}
 	public ItemStack getForwardArrow() {
 		return forwardArrow;
+	}
+	
+	public void untrackedBack(Player player) {
+		ArrayList<GUI> list = inventoryTree.get(player.getUniqueId());
+		list.get(list.size()-1).unTrackedOpen(player);
+	}
+	
+	public void refreshInventory(Inventory inv) {
+		for (HumanEntity player : inv.getViewers()) {
+			((Player) player).updateInventory();
+		}
 	}
 }

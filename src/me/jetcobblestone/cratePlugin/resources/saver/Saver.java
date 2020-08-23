@@ -34,8 +34,8 @@ public class Saver {
 			
 			config.set(("Crates.Crate " + Integer.toString(x) + ".Name"), crateList.get(x).getName());
 			for(int i = 0; i < (crateList.get(x).getContents().size()); i++) {
-				config.set(("Crates.Crate " + Integer.toString(x) + ".ItemStacks.ItemStack " + Integer.toString(i)), crateList.get(x).getContents().get(i).getItem());
-				config.set(("Crates.Crate " + Integer.toString(x) + ".ItemStacks.Weight " + Integer.toString(i)), crateList.get(x).getContents().get(i).getWeight());
+				config.set(("Crates.Crate " + Integer.toString(x) + ".ItemStacks.ItemStack " + Integer.toString(i)), crateList.get(x).getContents().get(i).getWeightedItem().getItem());
+				config.set(("Crates.Crate " + Integer.toString(x) + ".ItemStacks.Weight " + Integer.toString(i)), crateList.get(x).getContents().get(i).getWeightedItem().getWeight());
 			config.set(("Crates.Crate " + Integer.toString(x) + ".NumberOfItems"), crateList.get(x).getContents().size());
 		}
 		config.set("CrateNumber", crateList.size());
