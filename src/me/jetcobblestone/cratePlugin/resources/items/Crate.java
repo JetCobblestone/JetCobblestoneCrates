@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -57,50 +56,29 @@ public class Crate {
 	/**
 	 * ================== Behaviour ==================
 	 */
-	public static int counter = 0;
 	
 	//Crate object functions
-	public Crate(String name, ArrayList<WeightedItemSlot> contents){
+	public Crate(String name){
 		this.name = name;
 		makeCrateItemStack();
 		generateInfoPage();
-		if (counter == 0) {
-			Bukkit.getConsoleSender().sendMessage(Integer.toString(counter));
-			Bukkit.getConsoleSender().sendMessage("" + infoPage.getContents().get(14).getAction());
-			counter++;
-		}
 
-		//If the user has not input a list for the contents, it will make an empty one
-		if (contents == null) {
-			contents = new ArrayList<WeightedItemSlot>();
-		}
-		contentsList = contents;
+		contentsList = new ArrayList<WeightedItemSlot>(); 
 
 		saver.getCrateList().add(this);
 		crateCreatorGUI.addCrateToGUI(this);
 
 		crateContentsGuiList.add(crateCreatorGUI.getNewGuiPage("Crate Contents"));
 		
-		if (contentsList.isEmpty() == false) {
-			updateContentsGUI();
-		}
-		if (counter == 1) {
-			Bukkit.getConsoleSender().sendMessage(Integer.toString(counter));
-			Bukkit.getConsoleSender().sendMessage("" + infoPage.getContents().get(14).getAction());
-			counter++;
-		}
 	}
 	
 	private void generateInfoPage(){
 		infoPage = crateCreatorGUI.getInfoPage(ChatColor.GOLD + "Crate Info - " + name, crateItemStack);
-		
 		infoPage.getContents().get(14).setSlot(event -> {
-			Bukkit.getConsoleSender().sendMessage("Crate deleted");
 			Player player = (Player) event.getWhoClicked();
 			delete();
 			tracker.goBack(player);
 		});
-		
 		infoPage.setItem(13, contentsIconSlot);
 	}
 	
@@ -111,6 +89,7 @@ public class Crate {
 			crateCreatorGUI.addCrateToGUI(crate);
 		}
 		crateCreatorGUI.updateInventoryList(crateCreatorGUI.getGuiList());
+		//To-do: close all the sub inventories of the crate
 	}
 	
 	//Crate contents functions
@@ -153,8 +132,8 @@ public class Crate {
 		crateContentsGuiList.get(crateContentsGuiList.size() - 1).add(slot);
 	}
 	
-	public void deleteSlot(int position) {
-		contentsList.remove(position);
+	public void deleteSlot(WeightedItemSlot weightedSlot) {
+		contentsList.remove(weightedSlot);
 		for (GUI gui : crateContentsGuiList) {gui.clear();};
 		updateContentsGUI();
 		crateCreatorGUI.updateInventoryList(crateContentsGuiList);

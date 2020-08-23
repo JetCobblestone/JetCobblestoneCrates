@@ -1,6 +1,5 @@
 package me.jetcobblestone.cratePlugin;
 
-import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import me.jetcobblestone.cratePlugin.resources.guis.CrateCreatorGUI;
@@ -34,10 +33,7 @@ public class CratePlugin extends JavaPlugin {
 	
 	@Override
 	public void onDisable() {
+		// (Disabled for testing)
 		//saver.saveCrates();
-	}
-	
-	public void printTest() {
-		Bukkit.getConsoleSender().sendMessage("" + saver.getCrateList().get(0).getInfoGUI().getContents().get(14).getAction());
 	}
 }

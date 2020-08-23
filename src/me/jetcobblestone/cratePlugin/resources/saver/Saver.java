@@ -31,7 +31,6 @@ public class Saver {
 	//Saves crates in cratesList to config
 	public void saveCrates() {
 		for(int x = 0; x < crateList.size(); x++) {
-			
 			config.set(("Crates.Crate " + Integer.toString(x) + ".Name"), crateList.get(x).getName());
 			for(int i = 0; i < (crateList.get(x).getContents().size()); i++) {
 				config.set(("Crates.Crate " + Integer.toString(x) + ".ItemStacks.ItemStack " + Integer.toString(i)), crateList.get(x).getContents().get(i).getWeightedItem().getItem());
@@ -46,7 +45,7 @@ public class Saver {
 	//Loads crates from config to cratesList
 	public void loadCrates() {
 		for(int x = 0; x < config.getInt("CrateNumber"); x++) {
-			Crate crate = new Crate(config.getString("Crates.Crate " + Integer.toString(x) + ".Name", "invalid"), null);
+			Crate crate = new Crate(config.getString("Crates.Crate " + Integer.toString(x) + ".Name", "invalid"));
 			for( int i = 0; i < config.getInt("Crates.Crate " + Integer.toString(x) + ".NumberOfItems", 0); i++){
 				ItemStack item = config.getItemStack("Crates.Crate " + Integer.toString(x) + ".ItemStacks.ItemStack " + Integer.toString(i));
 				Double weight = config.getDouble("Crates.Crate " + Integer.toString(x) + ".ItemStacks.Weight " + Integer.toString(i));

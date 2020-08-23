@@ -2,7 +2,6 @@ package me.jetcobblestone.cratePlugin.resources.items;
 
 import java.util.ArrayList;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -26,18 +25,17 @@ public class WeightedItem {
 	
 	public WeightedItem(ItemStack item, Double weight, Crate crate) {	
 		this.item = item;
+		this.crate = crate;
+		this.weight = DoubleRounder.round(weight, 5);
+		
 		infoGui = CrateCreatorGUI.getInstance().getInfoPage("Item info", item);
-		if (infoGui.getContents().get(14) == crate.getInfoGUI().getContents().get(14)) {
-			Bukkit.getConsoleSender().sendMessage("FUCK");
-		}
+		
+		//Setting the delete function of this WeightedItem's info page
 		infoGui.getContents().get(14).setSlot(event -> {
 			Player player = (Player) event.getWhoClicked();
+			for (WeightedItemSlot weightedSlot: crate.getContents()) {if (weightedSlot.getWeightedItem() == this) {crate.deleteSlot(weightedSlot);}}
 			Tracker.getInstance().goBack(player);
 		});
-		if (crate != null) {
-			this.crate = crate;
-		}
-		this.weight = DoubleRounder.round(weight, 5);
 	}
 	
 	public double getWeight(){	

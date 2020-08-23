@@ -11,7 +11,6 @@ public class CreationGUI implements Listener{
 	
 	@EventHandler
 	public void onGUIClick(InventoryClickEvent event) {
-		
 		if (event.getCurrentItem() == null) return;
 		if (GUI.getGUI(event.getClickedInventory()) != null) {
 			event.setCancelled(true);
