@@ -2,26 +2,24 @@ package me.jetcobblestone.cratePlugin.resources.items;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
+import java.util.UUID;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import me.jetcobblestone.cratePlugin.CratePlugin;
 import me.jetcobblestone.cratePlugin.resources.guis.CrateCreatorGUI;
-import me.jetcobblestone.cratePlugin.resources.guis.CrateScrollGUI;
 import me.jetcobblestone.cratePlugin.resources.guis.GUI;
 import me.jetcobblestone.cratePlugin.resources.saver.Saver;
+import me.jetcobblestone.cratePlugin.resources.util.CrateScroller;
 import me.jetcobblestone.cratePlugin.resources.util.CustomSlot;
 import me.jetcobblestone.cratePlugin.resources.util.ItemFactory;
+import me.jetcobblestone.cratePlugin.resources.util.ScrollerSetting;
 import me.jetcobblestone.cratePlugin.resources.util.Tracker;
 
 
@@ -34,6 +32,8 @@ public class Crate {
 	private String name;
 	private GUI infoPage;
 	private CustomSlot crateSlot;
+	private UUID uuid;
+	private CrateScroller scroller = new CrateScroller(new ScrollerSetting());
 		
 	//Identifier to tell if the ItemStack is a crate
 	private static final NamespacedKey key = new NamespacedKey(CratePlugin.getInstance(), "Crate");
@@ -58,18 +58,17 @@ public class Crate {
 	 */
 	
 	//Crate object functions
-	public Crate(String name){
+	public Crate(String name, UUID uuid){
 		this.name = name;
+		this.uuid = uuid;
+		contentsList = new ArrayList<WeightedItemSlot>(); 
+		
 		makeCrateItemStack();
 		generateInfoPage();
-
-		contentsList = new ArrayList<WeightedItemSlot>(); 
+		getNewContentsPage();
 
 		saver.getCrateList().add(this);
 		crateCreatorGUI.addCrateToGUI(this);
-
-		crateContentsGuiList.add(crateCreatorGUI.getNewGuiPage("Crate Contents"));
-		
 	}
 	
 	private void generateInfoPage(){
@@ -89,6 +88,11 @@ public class Crate {
 			crateCreatorGUI.addCrateToGUI(crate);
 		}
 		crateCreatorGUI.updateInventoryList(crateCreatorGUI.getGuiList());
+		for (GUI gui : crateCreatorGUI.getGuiList()) {
+			gui.getContents().get(45).setSlot(event -> {
+				crateCreatorGUI.getAddCrateGui().open((Player) event.getWhoClicked());
+			});
+		}
 		//To-do: close all the sub inventories of the crate
 	}
 	
@@ -97,7 +101,7 @@ public class Crate {
 		//This function makes an ItemStack for the crate object which players can interact with in game.
 		List<String> lore = new ArrayList<String>();
 		lore.add(ChatColor.GRAY + "" + ChatColor.ITALIC + "Right click to get a reward!");
-		crateItemStack = ItemFactory.createItem(name, ChatColor.GOLD, Material.CHEST, lore);
+		crateItemStack = ItemFactory.createItem(name, ChatColor.RESET, Material.CHEST, lore);
 		ItemMeta crateMeta = crateItemStack.getItemMeta();
 		crateMeta.getPersistentDataContainer().set(Crate.key, PersistentDataType.DOUBLE, Math.PI);
 		crateItemStack.setItemMeta(crateMeta);
@@ -108,10 +112,6 @@ public class Crate {
 		});
 	}
 	
-	public CustomSlot getSlot() {
-		return crateSlot;
-	}
-
 	public void addItem(ItemStack item, Double weight) {
 		final WeightedItem weightedItem = new WeightedItem(item, weight, this);
 		final CustomSlot itemSlot = new CustomSlot(item, event ->{
@@ -127,7 +127,7 @@ public class Crate {
 	
 	public void addSlot(CustomSlot slot) {
 		if(crateContentsGuiList.get(crateContentsGuiList.size() - 1).getInventory().getItem(44) != null) {
-			crateCreatorGUI.getNewGuiPage("Contents");
+			getNewContentsPage();
 		}
 		crateContentsGuiList.get(crateContentsGuiList.size() - 1).add(slot);
 	}
@@ -137,6 +137,10 @@ public class Crate {
 		for (GUI gui : crateContentsGuiList) {gui.clear();};
 		updateContentsGUI();
 		crateCreatorGUI.updateInventoryList(crateContentsGuiList);
+		for (GUI gui : crateContentsGuiList) {
+			crateCreatorGUI.addGuiPageItems(gui);
+			addContentGuiItems(gui);
+		}
 	}
 	
 	public void updateContentsGUI() {
@@ -145,12 +149,23 @@ public class Crate {
 		}
 	}
 	
-	public GUI getNewContentsPage(){
+	public void getNewContentsPage(){
 		GUI gui = crateCreatorGUI.getNewGuiPage(ChatColor.GOLD + "Contents");
-		gui.getContents().get(44).setSlot(event -> {
-			crateCreatorGUI.getAddItemGui().open((Player) event.getWhoClicked());
+		crateContentsGuiList.add(gui);
+		addContentGuiItems(gui);
+	}
+	
+	private void addContentGuiItems(GUI gui) {
+		gui.getContents().get(45).setSlot(event -> {
+			crateCreatorGUI.getAddItemGui(this).open((Player) event.getWhoClicked());
 		});
-		return gui;
+		if (gui != crateContentsGuiList.get(0)) {
+			final ItemStack forwardArrow = ItemFactory.createItem("Next Page", ChatColor.RESET, Material.ARROW, null);
+			final CustomSlot fowardArrowSlot = new CustomSlot(forwardArrow, event-> {
+				crateContentsGuiList.get(crateContentsGuiList.indexOf(GUI.getGUI(event.getClickedInventory())) + 1).open((Player)event.getWhoClicked());
+			});
+			crateContentsGuiList.get(crateContentsGuiList.indexOf(gui)-1).setItem(50, fowardArrowSlot);
+		}
 	}
 	
 	//Opening crate behaviour
@@ -182,54 +197,7 @@ public class Crate {
 			player.sendMessage(ChatColor.DARK_RED + "Sorry, there's nothing in this crate!");
 			return;
 		}
-		
-		Inventory inventory = CrateScrollGUI.getInstance().getNewGUI(name);
-		
-		player.sendMessage(ChatColor.GOLD + "Opening a " + ChatColor.AQUA + name);
-		player.openInventory(inventory);
-		player.playSound(player.getLocation(), Sound.BLOCK_CHEST_OPEN, 0.5f, 1.0f);
-		
-		
-		new BukkitRunnable() {
-			
-			int timer = 0;
-			int delay = -50 - new Random().nextInt(150);
-			
-			@Override
-			public void run() {
-				timer++;
-				if (timer > delay) {
-					delay++;
-					timer = -3;
-					for(int itemIndex = 9; itemIndex < 17; itemIndex++) {
-						
-						if (inventory.getItem(itemIndex+1) != null) {
-							inventory.setItem(itemIndex, inventory.getItem(itemIndex+1));
-						}
-						if (itemIndex == 16) {
-							inventory.setItem(17, (randomItem()));
-						}	
-					}
-					player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BIT, 0.5f, 0.7f);	
-				}
-				
-				
-				if (delay == 10) {
-					if (inventory.getItem(13).getItemMeta().getDisplayName() == "") {
-						player.sendMessage(ChatColor.GOLD + "You won " + ChatColor.AQUA + "" + inventory.getItem(13).getType().name().toLowerCase());
-					}
-					else {
-						player.sendMessage(ChatColor.GOLD + "You won " + ChatColor.AQUA + "" + inventory.getItem(13).getItemMeta().getDisplayName());
-					}
-					
-					player.playSound(player.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_BLAST, 1f, 1f);
-					player.getInventory().addItem(inventory.getItem(13));
-					
-					cancel();
-				}
-			}
-			//runnable
-		}.runTaskTimer(CratePlugin.getInstance(), 20l, 1l);
+		scroller.roll(this, player);
 	}
 
 	//Getters
@@ -249,16 +217,25 @@ public class Crate {
 		return totalWeight;
 	}
 	
-	public static NamespacedKey getKey() {
-		return key;
-	}
-	
 	public GUI getInfoGUI() {
 		return infoPage;
 	}
 	
 	public ArrayList<GUI> getCrateContentsGUI(){
 		return crateContentsGuiList;
+	}
+	
+	public CustomSlot getSlot() {
+		return crateSlot;
+	}
+	
+	public UUID getUUID() {
+		return uuid;
+	}
+	
+	//Setters
+	public void setSettings(ScrollerSetting settings) {
+		this.scroller = new CrateScroller(settings);
 	}
 	
 	//Static utility
@@ -270,6 +247,19 @@ public class Crate {
 		}
 		
 		return null;
+	}	
+
+	public static Crate fromUUIS(UUID inputUuid) {
+		for (Crate crate: saver.getCrateList()) {
+			if (crate.getUUID().equals(inputUuid)) {
+				return crate;
+			}
+		}
+		return null;
+	}
+
+	public static NamespacedKey getKey() {
+		return key;
 	}
 	
 }

@@ -1,6 +1,7 @@
-package me.jetcobblestone.cratePlugin.resources.saver;
+ package me.jetcobblestone.cratePlugin.resources.saver;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.inventory.ItemStack;
@@ -30,8 +31,10 @@ public class Saver {
 	
 	//Saves crates in cratesList to config
 	public void saveCrates() {
+		config.set("Crates", "");
 		for(int x = 0; x < crateList.size(); x++) {
 			config.set(("Crates.Crate " + Integer.toString(x) + ".Name"), crateList.get(x).getName());
+			config.set(("Crates.Crate " + Integer.toString(x) + ".UUID"), crateList.get(x).getUUID().toString());
 			for(int i = 0; i < (crateList.get(x).getContents().size()); i++) {
 				config.set(("Crates.Crate " + Integer.toString(x) + ".ItemStacks.ItemStack " + Integer.toString(i)), crateList.get(x).getContents().get(i).getWeightedItem().getItem());
 				config.set(("Crates.Crate " + Integer.toString(x) + ".ItemStacks.Weight " + Integer.toString(i)), crateList.get(x).getContents().get(i).getWeightedItem().getWeight());
@@ -45,7 +48,12 @@ public class Saver {
 	//Loads crates from config to cratesList
 	public void loadCrates() {
 		for(int x = 0; x < config.getInt("CrateNumber"); x++) {
-			Crate crate = new Crate(config.getString("Crates.Crate " + Integer.toString(x) + ".Name", "invalid"));
+			UUID uuid;
+			try {
+				uuid = UUID.fromString(config.getString("Crates.Crate " + Integer.toString(x) + ".UUID"));
+			}
+			catch (Exception e) {uuid = UUID.randomUUID();}
+			Crate crate = new Crate(config.getString("Crates.Crate " + Integer.toString(x) + ".Name", "invalid"), uuid);
 			for( int i = 0; i < config.getInt("Crates.Crate " + Integer.toString(x) + ".NumberOfItems", 0); i++){
 				ItemStack item = config.getItemStack("Crates.Crate " + Integer.toString(x) + ".ItemStacks.ItemStack " + Integer.toString(i));
 				Double weight = config.getDouble("Crates.Crate " + Integer.toString(x) + ".ItemStacks.Weight " + Integer.toString(i));

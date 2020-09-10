@@ -34,10 +34,11 @@ import me.jetcobblestone.cratePlugin.resources.items.Crate;
 				ItemStack crateInHand = commander.getInventory().getItemInMainHand();
 				Crate crate = Crate.findCrate(crateInHand);
 				
-				crateOpenList.add(commander);
-				
-				crate.open(commander);
 				crateInHand.setAmount(crateInHand.getAmount() -1);
+				if (crate == null) return;
+				
+				crateOpenList.add(commander);
+				crate.open(commander);
 				commander.updateInventory();
 				
 				return;
@@ -48,12 +49,12 @@ import me.jetcobblestone.cratePlugin.resources.items.Crate;
 	@EventHandler
 	public void onCrateInventoryClick(InventoryClickEvent event) {
 		Player player = (Player) event.getWhoClicked();
-		if (crateOpenList.contains(player)) {
-			if (event.getClick() != ClickType.LEFT && event.getClick() != ClickType.RIGHT) {
-				event.setCancelled(true);
-			}
-			
+		if (crateOpenList.contains(player)) {		
 			if (event.getClickedInventory() != player.getInventory()) {
+				event.setCancelled(true);
+				return;
+			}
+			if (event.getClick() == ClickType.SHIFT_LEFT || event.getClick() == ClickType.SHIFT_RIGHT || event.getClick() == ClickType.DOUBLE_CLICK) {
 				event.setCancelled(true);
 			}
 		}

@@ -20,7 +20,6 @@ public class Tracker {
 	private static Tracker instance;
 	
 	private final HashMap<UUID, ArrayList<GUI>> inventoryTree = new HashMap<UUID, ArrayList<GUI>>();
-	private final ItemStack forwardArrow = ItemFactory.createItem("Foward", null, Material.ARROW, null);
 	
 	private final ItemStack backArrow = ItemFactory.createItem("Back", ChatColor.RESET, Material.ARROW, null);
 	private final CustomSlot backArrowSlot = new CustomSlot(backArrow, event -> { goBack((Player) event.getWhoClicked()); event.setCancelled(true);	});
@@ -57,10 +56,7 @@ public class Tracker {
 	public CustomSlot getBackArrow() {
 		return backArrowSlot;
 	}
-	public ItemStack getForwardArrow() {
-		return forwardArrow;
-	}
-	
+
 	public void untrackedBack(Player player) {
 		ArrayList<GUI> list = inventoryTree.get(player.getUniqueId());
 		list.get(list.size()-1).unTrackedOpen(player);

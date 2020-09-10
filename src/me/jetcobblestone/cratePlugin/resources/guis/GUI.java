@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 
+import me.jetcobblestone.cratePlugin.resources.util.Action;
 import me.jetcobblestone.cratePlugin.resources.util.CustomSlot;
 import me.jetcobblestone.cratePlugin.resources.util.Tracker;
 
@@ -17,8 +18,7 @@ public class GUI{
 	private static final ArrayList<CustomSlot> blankList = new ArrayList<CustomSlot>();
 	private ArrayList<CustomSlot> contents = new ArrayList<CustomSlot>();
 	private Inventory inv;
-	
-	private String name;
+	private Action action;
 	
 	static {
 		for (int i = 0; i < 56; i++) {
@@ -28,7 +28,6 @@ public class GUI{
 	
 	@SuppressWarnings("unchecked")
 	public GUI(String name, int rows) {
-		this.name = name;
 		inv = Bukkit.createInventory(null, 9 * rows, name);
 		contents = (ArrayList<CustomSlot>) blankList.clone();
 		identifierTable.put(inv, this);
@@ -51,16 +50,29 @@ public class GUI{
 	
 	public void setItem(int i, CustomSlot slot) {
 		contents.set(i, slot);
-		inv.setItem(i, slot.getItem());
+		if (slot == null ) {
+			inv.setItem(i, null);
+		}
+		else {
+			inv.setItem(i, slot.getItem());
+		}
+	}
+	
+	public void setAction(Action action) {
+		this.action = action;
 	}
 	
 	public void clickItem(int i, InventoryClickEvent event) {
 		CustomSlot slot = contents.get(i);
-		slot.click(event);
+		if (slot != null) {
+			slot.click(event);
+		}
 	}
 	
-	public Inventory getInventory() {
-		return inv;
+	public void runGuiAction(InventoryClickEvent event) {
+		if (action != null) {
+			action.run(event);
+		}
 	}
 	
 	public void add(CustomSlot slot) {
@@ -76,6 +88,10 @@ public class GUI{
 		return contents;
 	}
 	
+	public Inventory getInventory() {
+		return inv;
+	}
+	
 	public static GUI getGUI(Inventory inv1) {
 		return identifierTable.get(inv1);
 	}
@@ -87,9 +103,5 @@ public class GUI{
 			}
 		}
 		return -1;
-	}
-	
-	public String getName() {
-		return name;
 	}
 }

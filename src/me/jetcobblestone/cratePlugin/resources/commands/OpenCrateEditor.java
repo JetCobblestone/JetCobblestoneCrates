@@ -1,5 +1,7 @@
 package me.jetcobblestone.cratePlugin.resources.commands;
 
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -16,10 +18,18 @@ public class OpenCrateEditor implements CommandExecutor{
 	
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String Label, String[] args) {
+		if (!(sender instanceof Player)){
+			Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "Sorry console, only a player can use this!");
+			return false;
+		}
 		
 		Player player = (Player) sender;
-		
 		tracker.clear(player);
+		
+		if (!player.hasPermission("jetcobblestonecrates.editcrates")) {
+			player.sendMessage(ChatColor.RED + "Sorry, you can't use that.");
+			return false;
+		}
 		
 		if(CrateCreatorGUI.getInstance().getGuiList().isEmpty() == false) {
 			GUI gui = CrateCreatorGUI.getInstance().getGuiList().get(0);

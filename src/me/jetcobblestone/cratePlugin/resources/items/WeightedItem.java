@@ -33,7 +33,10 @@ public class WeightedItem {
 		//Setting the delete function of this WeightedItem's info page
 		infoGui.getContents().get(14).setSlot(event -> {
 			Player player = (Player) event.getWhoClicked();
-			for (WeightedItemSlot weightedSlot: crate.getContents()) {if (weightedSlot.getWeightedItem() == this) {crate.deleteSlot(weightedSlot);}}
+			WeightedItemSlot toDelete = null;
+			for (WeightedItemSlot weightedSlot: crate.getContents()) {
+				if (weightedSlot.getWeightedItem() == this) {toDelete = weightedSlot;}}
+			crate.deleteSlot(toDelete);
 			Tracker.getInstance().goBack(player);
 		});
 	}
@@ -63,7 +66,7 @@ public class WeightedItem {
 		lore.add(ChatColor.GOLD + "Click to edit weight");
 		final CustomSlot weightCounterSlot = new CustomSlot(ItemFactory.createItem("Weight", ChatColor.GOLD, Material.PAPER, lore), event -> {
 			Player player = (Player) event.getWhoClicked();
-			Builder weightEditor = CrateCreatorGUI.getInstance().getWeightEditor(player, this);
+			Builder weightEditor = CrateCreatorGUI.getInstance().getWeightEditor(this);
 			weightEditor.open(player);
 		});
 		infoGui.setItem(13, weightCounterSlot);
